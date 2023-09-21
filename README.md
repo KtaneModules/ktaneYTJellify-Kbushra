@@ -1,3 +1,3 @@
-Regular Module JacknJellify for KTaNE
+Regular Module Contest IDs for KTaNE
 
-Made by ThatOneKid, inspired by JacknJellify youtube channel
+Made by ThatOneKid, inspired by JacknJellifys object shows
