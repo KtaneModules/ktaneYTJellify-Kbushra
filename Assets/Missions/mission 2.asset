@@ -32,7 +32,7 @@ MonoBehaviour:
       SpecialComponentType: 0
       ModTypes:
       - YTJellify
-    - Count: 2
+    - Count: 1
       AllowedSources: 2
       ComponentTypes: 
       SpecialComponentType: 0

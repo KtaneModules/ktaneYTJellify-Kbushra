@@ -12,17 +12,16 @@ public class SimpleModuleScript : MonoBehaviour {
 	public KMBombInfo info;
 	public KMBombModule module;
 	public KMSelectable[] competitions;
-	public KMSelectable[] AudioButtons;
 	static int ModuleIdCounter = 1;
 	int ModuleId;
 
 	public TextMesh[] screenTexts;
 
-	public AudioSource bfb;
-	public AudioSource tpot;
-
 	public int textMessage1;
+	public float number;
 	public string textFinder1;
+
+	public GameObject[] Podiums;
 
 	bool _isSolved = false;
 	bool incorrect = false;
@@ -37,48 +36,60 @@ public class SimpleModuleScript : MonoBehaviour {
 			KMSelectable pressedButton = button;
 			button.OnInteract += delegate () { competitionDecider(pressedButton); return false; };
 		}
-
-		foreach (KMSelectable button in AudioButtons)
-		{
-			KMSelectable pressedButton = button;
-			button.OnInteract += delegate () { audioButtonPresses(pressedButton); return false; };
-		}
 	}
 
 	void Start ()
 	{
 		textMessage1 = Rnd.Range(1, 55);
+		Calculate ();
 		for (int i = 0; i < textMessage1; i++)
 			textFinder1 = textMessage1.ToString();
 		screenTexts[0].text = textFinder1;
 
-		Debug.LogFormat("You are contestant no {0}", textMessage1);
+		Debug.LogFormat("[JacknJellify #{0}] You are contestant no {1}, your ID is {2}", ModuleId, textMessage1, number);
 	}
 
-	void audioButtonPresses(KMSelectable pressedButton)
+	void Calculate()
 	{
-		GetComponent<KMAudio>().PlayGameSoundAtTransformWithRef(KMSoundOverride.SoundEffect.ButtonPress, transform);
-		int buttonPosition = new int();
-		for(int i = 0; i < AudioButtons.Length; i++)
+		number = textMessage1;
+		if (number > 40)
 		{
-			if (pressedButton == AudioButtons[i])
+			if (info.GetBatteryCount () < 4) 
 			{
-				buttonPosition = i;
-				break;
+				number = number * (float) 0.25 ;
+			}
+			if (info.GetBatteryCount () > 3) 
+			{
+				number = number * 4;
+			}
+		}
+		if (number <= 40)
+		{
+			if (info.GetBatteryCount () < 2) 
+			{
+				number = number * (float) 0.5;
+			}
+			if (info.GetBatteryCount () > 1) 
+			{
+				number = number * 2;
 			}
 		}
 
-		switch (buttonPosition) 
-		{
-		case 0:
-			bfb.Play ();
-			break;
-		case 1:
-			tpot.Play ();
-			break;
-		}
-	}
+		int[] array = info.GetSerialNumberNumbers ().ToArray();
 
+		if (array [0] % 4 == 0) 
+		{
+			number = number - 2;
+		}
+		else if (array [0] % 2 == 0) 
+		{
+			number = number + 3;
+		}
+
+
+		number = number % 5;
+		number = Mathf.Round (number);
+	}
 	void competitionDecider(KMSelectable pressedButton)
 	{
 		GetComponent<KMAudio>().PlayGameSoundAtTransformWithRef(KMSoundOverride.SoundEffect.ButtonPress, transform);
@@ -96,30 +107,42 @@ public class SimpleModuleScript : MonoBehaviour {
 			switch (buttonPosition) 
 			{
 			case 0:
-				if (textMessage1 > 14) 
+				if (number != 4) 
 				{
 					incorrect = true;
-					Log ("BFB is not for you!");
+				} 
+				else 
+				{
+					Podiums [0].transform.localPosition = new Vector3 (0, 1, 0);
 				}
 				break;
 			case 1:
-				if (textMessage1 < 15) 
+				if (number != 2 && number != 0) 
 				{
 					incorrect = true;
-					Log ("TPOT is not for you!");
+				}
+				else 
+				{
+					Podiums [1].transform.localPosition = new Vector3 (0, 1, 0);
+				}
+				break;
+			case 2: 
+				if (number == 2 || number == 4) 
+				{
+					incorrect = true;
 				}
 				break;
 			}
 			if (incorrect) 
 			{
 				module.HandleStrike ();
-				Log ("You entered the wrong side!");
+				Log ("Your ID does not match the competition chosen");
 				incorrect = false;
 			}
 			else 
 			{
 				module.HandlePass ();
-				Log ("You chose the wise competition!");
+				Log ("Seems like you've been entered in...");
 				_isSolved = true;
 			}
 		}
