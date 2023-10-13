@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 using KModkit;
 using Newtonsoft.Json;
@@ -46,7 +47,7 @@ public class SimpleModuleScript : MonoBehaviour {
 			textFinder1 = textMessage1.ToString();
 		screenTexts[0].text = textFinder1;
 
-		Debug.LogFormat("[JacknJellify #{0}] You are contestant no {1}, your ID is {2}", ModuleId, textMessage1, number);
+		Debug.LogFormat("[Contest IDs #{0}] You are contestant no {1}, your ID is {2}", ModuleId, textMessage1, number);
 	}
 
 	void Calculate()
@@ -92,7 +93,6 @@ public class SimpleModuleScript : MonoBehaviour {
 	}
 	void competitionDecider(KMSelectable pressedButton)
 	{
-		GetComponent<KMAudio>().PlayGameSoundAtTransformWithRef(KMSoundOverride.SoundEffect.ButtonPress, transform);
 		int buttonPosition = new int();
 		for(int i = 0; i < competitions.Length; i++)
 		{
@@ -104,6 +104,8 @@ public class SimpleModuleScript : MonoBehaviour {
 		}
 		if (_isSolved == false) 
 		{
+			audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, competitions[buttonPosition].transform);
+			competitions [buttonPosition].AddInteractionPunch ();
 			switch (buttonPosition) 
 			{
 			case 0:
@@ -127,7 +129,7 @@ public class SimpleModuleScript : MonoBehaviour {
 				}
 				break;
 			case 2: 
-				if (number == 2 || number == 4) 
+				if (number == 2 || number == 4 || number == 0) 
 				{
 					incorrect = true;
 				}
@@ -150,7 +152,49 @@ public class SimpleModuleScript : MonoBehaviour {
 
 	void Log(string message)
 	{
-		Debug.LogFormat("[JacknJellify #{0}] {1}", ModuleId, message);
+		Debug.LogFormat("[Contest IDs #{0}] {1}", ModuleId, message);
+	}
+
+	#pragma warning disable 414
+	private readonly string TwitchHelpMessage = @"!{0} co1/quit/co2 [Presses the button labelled CO1, QUIT, or CO2]";
+	#pragma warning restore 414
+
+	IEnumerator ProcessTwitchCommand(string command)
+	{
+		if (command.EqualsIgnoreCase("co1"))
+		{
+			yield return null;
+			competitions[0].OnInteract();
+		}
+		else if (command.EqualsIgnoreCase("co2"))
+		{
+			yield return null;
+			competitions[1].OnInteract();
+		}
+		else if (command.EqualsIgnoreCase("quit"))
+		{
+			yield return null;
+			competitions[2].OnInteract();
+		}
+	}
+
+	IEnumerator TwitchHandleForcedSolve()
+	{
+		if (number == 4)
+		{
+			competitions[0].OnInteract();
+			yield return new WaitForSeconds(.1f);
+		}
+		else if (number == 2 || number == 0)
+		{
+			competitions[1].OnInteract();
+			yield return new WaitForSeconds(.1f);
+		}
+		else
+		{
+			competitions[2].OnInteract();
+			yield return new WaitForSeconds(.1f);
+		}
 	}
 }
 

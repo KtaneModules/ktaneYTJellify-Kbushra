@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Name: ModConfig
   m_EditorClassIdentifier: 
   id: YTJellify
-  title: JacknJellify
+  title: Contest IDs
   author: ThatOneKid
-  description: The inanimate object show!
-  version: 1.0
+  description: Are you invited to this contest?
+  version: 2.0
   outputFolder: build
-  previewImage: {fileID: 2800000, guid: 3ef68f4289346a444b7706544a085d6e, type: 3}
+  previewImage: {fileID: 2800000, guid: 0a1ce44407a7858448f8a49340fc7914, type: 3}
